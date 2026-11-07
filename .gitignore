@@ -1,0 +1,30 @@
+# binaries
+/bin/
+*.test
+*.out
+
+# local data / dev clusters
+/.dev/
+/data/
+*.wal
+*.snap
+
+# web
+/web/node_modules/
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/
+
+# binaries accidentally built into the repository root
+/vaultd
+/fvault
+/vault-chaos
+/gen-vectors
+
+# binaries built inside their own command directory
+/cmd/*/vaultd
+/cmd/*/fvault
+/cmd/*/vault-chaos
+/cmd/*/gen-vectors

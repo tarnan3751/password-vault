@@ -1,0 +1,11 @@
+{
+  "name": "Family Vault",
+  "short_name": "Vault",
+  "description": "Self-hosted, zero-knowledge password manager for the household",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6f4ef",
+  "theme_color": "#1f5f5b",
+  "icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

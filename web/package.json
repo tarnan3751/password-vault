@@ -1,0 +1,28 @@
+{
+  "name": "family-vault-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser client of Family Vault (zero-knowledge; all crypto runs here)",
+  "scripts": {
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tsconfig.sw.json",
+    "test": "node --test --test-concurrency=1 \"test/**/*.test.ts\"",
+    "build": "node scripts/build.mjs",
+    "e2e": "node scripts/e2e.ts",
+    "smoke": "node scripts/smoke.mjs",
+    "perf": "node scripts/perf.mjs"
+  },
+  "dependencies": {
+    "@noble/ciphers": "2.4.0",
+    "@noble/curves": "2.4.0",
+    "@noble/hashes": "2.4.0",
+    "hash-wasm": "4.12.0",
+    "preact": "11.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.6",
+    "esbuild": "0.28.2",
+    "playwright-core": "1.65.0",
+    "typescript": "7.0.2"
+  }
+}

@@ -1,0 +1,76 @@
+# systemd unit for one Family Vault node.
+#
+# NOTE: written from the systemd documentation and not yet exercised on a real
+# host. If the service fails to start, comment out the sandboxing block
+# (NoNewPrivileges ... ReadOnlyPaths) first and re-enable it line by line.
+#
+#   sudo useradd --system --home /var/lib/vaultd --shell /usr/sbin/nologin vaultd
+#   sudo install -d -o vaultd -g vaultd -m 0700 /etc/vaultd /var/lib/vaultd
+#   sudo install -o root -g root -m 0755 vaultd /usr/local/bin/vaultd
+#   # copy this node's directory from `vaultd init-cluster` into /etc/vaultd
+#   # and set "data_dir": "/var/lib/vaultd" in /etc/vaultd/config.json
+#   sudo chown -R vaultd:vaultd /etc/vaultd && sudo chmod 0600 /etc/vaultd/*
+#   sudo install -m 0644 deploy/vaultd.service /etc/systemd/system/vaultd.service
+#   sudo systemctl daemon-reload && sudo systemctl enable --now vaultd
+#   journalctl -u vaultd -f
+
+[Unit]
+Description=Family Vault server
+Documentation=https://github.com/tarnan3751/password-vault
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=vaultd
+Group=vaultd
+ExecStart=/usr/local/bin/vaultd run --config /etc/vaultd/config.json
+
+# A node that stops (crash, fatal disk error) simply comes back and catches
+# up from the other two. Do not restart in a tight loop on a broken disk.
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=300
+StartLimitBurst=20
+
+# Let in-flight requests finish; vaultd flushes nothing on exit that was not
+# already fsynced before being acknowledged.
+TimeoutStopSec=15
+KillSignal=SIGTERM
+
+# The process needs its config (read-only) and its data directory, nothing else.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+ProtectClock=true
+ProtectHostname=true
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictAddressFamilies=AF_INET AF_INET6
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+# Return an error instead of killing the process if the Go runtime probes a
+# call outside the allow-list (it tolerates the failure).
+SystemCallErrorNumber=EPERM
+CapabilityBoundingSet=
+AmbientCapabilities=
+UMask=0077
+ReadWritePaths=/var/lib/vaultd
+ReadOnlyPaths=/etc/vaultd
+
+# Argon2id login verification uses ~19 MiB per concurrent login (at most 4),
+# the replicated state is capped well below 100 MiB, and a snapshot briefly
+# doubles it. 512M is generous even on a small Raspberry Pi.
+MemoryMax=512M
+LimitNOFILE=4096
+
+[Install]
+WantedBy=multi-user.target
